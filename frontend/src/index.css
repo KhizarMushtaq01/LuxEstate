@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; color: #2C2C2C; background: #FAF8F3; margin: 0; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, h4 { font-family: 'Playfair Display', Georgia, serif; }
+}
+
+@layer components {
+  .btn-gold { background: #C9A84C; color: white; padding: 12px 28px; font-weight: 500; letter-spacing: 0.05em; transition: all 0.3s; display: inline-block; cursor: pointer; border: none; }
+  .btn-gold:hover { background: #B8962E; }
+  .btn-navy { background: #1B2B4B; color: white; padding: 12px 28px; font-weight: 500; letter-spacing: 0.05em; transition: all 0.3s; display: inline-block; cursor: pointer; border: none; }
+  .btn-navy:hover { background: #0F1929; }
+  .btn-outline { border: 1.5px solid #C9A84C; color: #C9A84C; padding: 11px 28px; font-weight: 500; letter-spacing: 0.05em; transition: all 0.3s; display: inline-block; cursor: pointer; background: transparent; }
+  .btn-outline:hover { background: #C9A84C; color: white; }
+  .card { background: white; box-shadow: 0 20px 60px rgba(0,0,0,0.08); overflow: hidden; transition: all 0.4s; }
+  .card:hover { box-shadow: 0 30px 80px rgba(0,0,0,0.15); }
+  .gold-divider { width: 48px; height: 2px; background: #C9A84C; margin: 16px 0; }
+  .input-field { width: 100%; border: 1px solid #e5e7eb; padding: 12px 16px; font-size: 0.875rem; color: #2C2C2C; outline: none; transition: border-color 0.2s; background: white; font-family: 'DM Sans', sans-serif; }
+  .input-field:focus { border-color: #C9A84C; }
+  .label { display: block; font-size: 0.7rem; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem); color: #1B2B4B; line-height: 1.2; }
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #C9A84C; }
+.leaflet-container { font-family: 'DM Sans', sans-serif; z-index: 1; }
