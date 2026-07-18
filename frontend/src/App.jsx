@@ -37,6 +37,7 @@ import AdminLeads from './pages/admin/AdminLeads';
 import AdminBlogs from './pages/admin/AdminBlogs';
 import AdminNeighborhoods from './pages/admin/AdminNeighborhoods';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminReviews from './pages/admin/AdminReviews';
 import AgentLayout from './pages/agent/AgentLayout';
 import AgentDashboard from './pages/agent/AgentDashboard';
 import AgentProperties from './pages/agent/AgentProperties';
@@ -98,6 +99,7 @@ export default function App() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="appointments" element={<AdminAppointments />} />
           <Route path="leads" element={<AdminLeads />} />
+          <Route path="reviews" element={<AdminReviews />} />
           <Route path="blogs" element={<AdminBlogs />} />
           <Route path="neighborhoods" element={<AdminNeighborhoods />} />
           <Route path="settings" element={<AdminSettings />} />

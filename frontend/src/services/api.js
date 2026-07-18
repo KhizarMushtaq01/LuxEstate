@@ -65,6 +65,7 @@ export const leadAPI = {
 export const reviewAPI = {
   create: (data) => api.post('/reviews', data),
   getAll: (params) => api.get('/reviews', { params }),
+  getAllAdmin: () => api.get('/admin/reviews'),
   approve: (id) => api.put(`/reviews/${id}/approve`),
 };
 

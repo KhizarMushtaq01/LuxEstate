@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { adminAPI, propertyAPI, appointmentAPI, leadAPI, blogAPI, neighborhoodAPI } from '../../services/api';
-import { SectionLoader, Modal } from '../../components/ui/index';
+import { adminAPI, propertyAPI, appointmentAPI, leadAPI, blogAPI, neighborhoodAPI, reviewAPI } from '../../services/api';
+import { SectionLoader, Modal, StarRating } from '../../components/ui/index';
 import { formatDate, formatPrice, getStatusColor } from '../../utils/helpers';
 import { Trash2, Edit, Plus, Search, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -78,7 +78,7 @@ function EditUserForm({ user, onSave }) {
   const [form, setForm] = useState({ firstName:user.firstName, lastName:user.lastName, role:user.role, phone:user.phone||'', isActive:user.isActive });
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div><label className="label">First Name</label><input value={form.firstName} onChange={e=>setForm({...form,firstName:e.target.value})} className="input-field" /></div>
         <div><label className="label">Last Name</label><input value={form.lastName} onChange={e=>setForm({...form,lastName:e.target.value})} className="input-field" /></div>
       </div>
@@ -226,6 +226,56 @@ export function AdminLeads() {
   );
 }
 
+// ── REVIEWS ───────────────────────────────────────────────────────────
+export function AdminReviews() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    reviewAPI.getAllAdmin().then(({ data }) => { setReviews(data.reviews || []); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+  const handleApprove = async (id) => {
+    try {
+      await reviewAPI.approve(id);
+      setReviews(r => r.map(x => x._id === id ? { ...x, isApproved: true } : x));
+      toast.success('Review approved');
+    } catch { toast.error('Failed'); }
+  };
+  if (loading) return <SectionLoader />;
+  return (
+    <div className="space-y-4">
+      <h2 className="font-display text-2xl text-navy-500">Reviews ({reviews.length})</h2>
+      {reviews.length === 0 ? (
+        <div className="bg-white border border-gray-100 text-center py-16">
+          <p className="text-gray-400">No reviews yet</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {reviews.map(r => (
+            <div key={r._id} className="bg-white border border-gray-100 p-5 flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-navy-500">{r.clientName || `${r.client?.firstName || ''} ${r.client?.lastName || ''}`}</h3>
+                  <StarRating rating={r.rating} size={14} />
+                </div>
+                <p className="text-gray-400 text-sm mt-0.5">For {r.agent?.firstName} {r.agent?.lastName} · {formatDate(r.createdAt)}</p>
+                {r.comment && <p className="text-gray-600 text-sm mt-2 max-w-lg">{r.comment}</p>}
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-xs px-2 py-0.5 ${r.isApproved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                  {r.isApproved ? 'Approved' : 'Pending'}
+                </span>
+                {!r.isApproved && (
+                  <button onClick={() => handleApprove(r._id)} className="btn-gold text-xs px-3 py-1.5 flex items-center gap-1"><Check size={13} />Approve</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── BLOGS ─────────────────────────────────────────────────────────────
 export function AdminBlogs() {
   const [blogs, setBlogs] = useState([]);
@@ -271,7 +321,7 @@ export function AdminBlogs() {
           <div><label className="label">Slug</label><input required value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} className="input-field" /></div>
           <div><label className="label">Excerpt</label><textarea value={form.excerpt} onChange={e=>setForm({...form,excerpt:e.target.value})} className="input-field" rows={2} /></div>
           <div><label className="label">Content</label><textarea required value={form.content} onChange={e=>setForm({...form,content:e.target.value})} className="input-field" rows={8} /></div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">Category</label>
               <select value={form.category} onChange={e=>setForm({...form,category:e.target.value})} className="input-field">
                 {['market-update','buyer-tips','seller-tips','neighborhood','investment','news'].map(c=><option key={c} value={c}>{c}</option>)}
@@ -329,11 +379,11 @@ export function AdminNeighborhoods() {
       </div>
       <Modal open={showForm} onClose={()=>setShowForm(false)} title="Add Neighborhood">
         <form onSubmit={handleCreate} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">Name</label><input required value={form.name} onChange={e=>setForm({...form,name:e.target.value,slug:e.target.value.toLowerCase().replace(/\s+/g,'-')})} className="input-field" /></div>
             <div><label className="label">Slug</label><input required value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} className="input-field" /></div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">City</label><input value={form.city} onChange={e=>setForm({...form,city:e.target.value})} className="input-field" /></div>
             <div><label className="label">State</label><input value={form.state} onChange={e=>setForm({...form,state:e.target.value})} className="input-field" /></div>
           </div>

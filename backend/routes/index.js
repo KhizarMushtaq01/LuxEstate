@@ -61,5 +61,6 @@ router.get('/admin/users', protect, authorize('admin'), data.getAllUsers);
 router.put('/admin/users/:id', protect, authorize('admin'), data.updateUser);
 router.delete('/admin/users/:id', protect, authorize('admin'), data.deleteUser);
 router.get('/admin/dashboard', protect, authorize('admin'), data.getDashboardStats);
+router.get('/admin/reviews', protect, authorize('admin'), data.getAllReviewsAdmin);
 
 module.exports = router;

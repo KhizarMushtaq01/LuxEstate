@@ -1,64 +1,12 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Heart, Calendar, User, LogOut, Menu } from 'lucide-react';
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Heart, Calendar, LayoutDashboard, Star } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import useAuthStore from '../../store/authStore';
-import { propertyAPI, appointmentAPI, authAPI } from '../../services/api';
-import { useEffect } from 'react';
+import { propertyAPI, appointmentAPI, authAPI, reviewAPI } from '../../services/api';
 import PropertyCard from '../../components/property/PropertyCard';
-import { SectionLoader, DashboardCard } from '../../components/ui/index';
+import { SectionLoader, DashboardCard, Modal } from '../../components/ui/index';
 import { formatDate, getStatusColor } from '../../utils/helpers';
 import toast from 'react-hot-toast';
-
-const MENU = [
-  { label: 'Dashboard', icon: LayoutDashboard, path: '/client' },
-  { label: 'Saved Homes', icon: Heart, path: '/client/saved' },
-  { label: 'Appointments', icon: Calendar, path: '/client/appointments' },
-  { label: 'My Profile', icon: User, path: '/client/profile' },
-];
-
-export function ClientLayout() {
-  const { user, logout } = useAuthStore();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [sideOpen, setSideOpen] = useState(false);
-  const handleLogout = () => { logout(); navigate('/'); };
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full">
-      <div className="p-6 border-b border-white/10">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gold-500 flex items-center justify-center"><span className="text-white font-bold text-sm">L</span></div>
-          <div><p className="font-display text-base text-gold-400">LuxEstate</p><p className="text-white/40 text-xs tracking-widest -mt-0.5">CLIENT PORTAL</p></div>
-        </Link>
-      </div>
-      <nav className="flex-1 p-4 space-y-1">
-        {MENU.map(({label,icon:Icon,path}) => {
-          const active = location.pathname === path;
-          return <Link key={label} to={path} onClick={()=>setSideOpen(false)} className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all ${active?'bg-gold-500 text-white':'text-white/60 hover:text-white hover:bg-white/5'}`}><Icon size={17}/>{label}</Link>;
-        })}
-      </nav>
-      <div className="p-4 border-t border-white/10">
-        <div className="px-2 mb-3"><p className="text-white text-sm font-medium">{user?.firstName} {user?.lastName}</p><p className="text-white/40 text-xs">Client</p></div>
-        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-sm text-white/60 hover:text-red-400 w-full"><LogOut size={15}/>Sign Out</button>
-      </div>
-    </div>
-  );
-  return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <aside className="hidden lg:flex flex-col w-64 bg-navy-500 shrink-0"><SidebarContent /></aside>
-      {sideOpen && <div className="lg:hidden fixed inset-0 z-50 flex"><div className="w-64 bg-navy-500 flex flex-col"><SidebarContent /></div><div className="flex-1 bg-black/50" onClick={()=>setSideOpen(false)}/></div>}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-gray-100 px-6 h-16 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <button onClick={()=>setSideOpen(true)} className="lg:hidden text-gray-500"><Menu size={20}/></button>
-            <h1 className="font-display text-lg text-navy-500">{MENU.find(m=>location.pathname===m.path)?.label||'Dashboard'}</h1>
-          </div>
-          <Link to="/properties" className="text-xs text-gold-500 hover:underline">Browse Properties</Link>
-        </header>
-        <main className="flex-1 overflow-y-auto p-6"><Outlet /></main>
-      </div>
-    </div>
-  );
-}
 
 export function ClientDashboard() {
   const { user } = useAuthStore();
@@ -98,11 +46,11 @@ export function ClientDashboard() {
 }
 
 export function ClientSaved() {
-  const { user, refreshUser } = useAuthStore();
+  const { user } = useAuthStore();
   const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!user?.savedProperties?.length);
   useEffect(()=>{
-    if (!user?.savedProperties?.length) { setLoading(false); return; }
+    if (!user?.savedProperties?.length) return;
     Promise.all(user.savedProperties.map(id=>propertyAPI.getOne(id).catch(()=>null)))
       .then(res => { setProperties(res.filter(Boolean).map(r=>r.data.property)); setLoading(false); });
   },[]);
@@ -125,9 +73,60 @@ export function ClientSaved() {
   );
 }
 
+function RateAgentModal({ appointment, onClose, onSubmitted }) {
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await reviewAPI.create({
+        agent: appointment.agent?._id,
+        property: appointment.property?._id,
+        rating,
+        comment,
+        transactionType: 'bought',
+      });
+      toast.success('Thanks for your review!');
+      onSubmitted(appointment._id);
+      onClose();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit review');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal open onClose={onClose} title="Rate Your Agent">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="label">Rating</label>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map(n => (
+              <button key={n} type="button" onClick={() => setRating(n)} className="p-0.5">
+                <Star size={24} fill={n <= rating ? '#C9A84C' : 'none'} stroke={n <= rating ? '#C9A84C' : '#d1d5db'} strokeWidth={1.5} />
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="label">Comment</label>
+          <textarea required value={comment} onChange={e => setComment(e.target.value)} className="input-field" rows={4} placeholder="How was your experience with this agent?" />
+        </div>
+        <button type="submit" disabled={saving} className="btn-gold w-full disabled:opacity-50">{saving ? 'Submitting...' : 'Submit Review'}</button>
+      </form>
+    </Modal>
+  );
+}
+
 export function ClientAppointments() {
   const [appts, setAppts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [reviewed, setReviewed] = useState([]);
+  const [ratingAppt, setRatingAppt] = useState(null);
   useEffect(()=>{ appointmentAPI.getAll().then(({data})=>{ setAppts(data.appointments||[]); setLoading(false); }).catch(()=>setLoading(false)); },[]);
   const cancel = async (id) => {
     if (!confirm('Cancel this showing?')) return;
@@ -156,9 +155,17 @@ export function ClientAppointments() {
             {['pending','confirmed'].includes(a.status) && (
               <button onClick={()=>cancel(a._id)} className="border border-red-300 text-red-500 text-xs px-3 py-1.5 hover:bg-red-50">Cancel</button>
             )}
+            {a.status==='completed' && (
+              reviewed.includes(a._id)
+                ? <span className="text-xs text-gray-400 flex items-center gap-1"><Star size={13} fill="#C9A84C" stroke="#C9A84C" />Reviewed</span>
+                : <button onClick={()=>setRatingAppt(a)} className="btn-outline text-xs px-3 py-1.5 flex items-center gap-1"><Star size={13} />Rate Agent</button>
+            )}
           </div>
         </div>
       ))}
+      {ratingAppt && (
+        <RateAgentModal appointment={ratingAppt} onClose={()=>setRatingAppt(null)} onSubmitted={(id)=>setReviewed(r=>[...r,id])} />
+      )}
     </div>
   );
 }
@@ -182,7 +189,7 @@ export function ClientProfile() {
       <form onSubmit={handleSubmit} className="bg-white border border-gray-100 p-6 space-y-4">
         <div><label className="label">Avatar URL</label><input value={form.avatar} onChange={e=>setForm({...form,avatar:e.target.value})} className="input-field" placeholder="https://..." /></div>
         {form.avatar && <img src={form.avatar} className="w-20 h-20 rounded-full object-cover" alt="" />}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div><label className="label">First Name</label><input value={form.firstName} onChange={e=>setForm({...form,firstName:e.target.value})} className="input-field" /></div>
           <div><label className="label">Last Name</label><input value={form.lastName} onChange={e=>setForm({...form,lastName:e.target.value})} className="input-field" /></div>
         </div>
