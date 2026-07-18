@@ -19,7 +19,8 @@ export default function DashboardSidebar({ menu, basePath, portalTag, user, subt
         </Link>
       </div>
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {menu.map(({ label, icon: Icon, path }) => {
+        {menu.map(({ label, icon, path }) => {
+          const Icon = icon;
           const active = isActive(path);
           return (
             <Link key={label} to={path} onClick={onNavigate}
