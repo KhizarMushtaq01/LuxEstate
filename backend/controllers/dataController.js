@@ -33,6 +33,8 @@ exports.updateLead = async (req, res) => {
 // REVIEWS
 exports.createReview = async (req, res) => {
   try {
+    const existing = await Review.findOne({ client: req.user.id, agent: req.body.agent, property: req.body.property });
+    if (existing) return res.status(400).json({ success: false, message: 'You have already reviewed this agent for this property' });
     const review = await Review.create({ ...req.body, client: req.user.id, clientName: `${req.user.firstName} ${req.user.lastName}` });
     res.status(201).json({ success: true, review });
   } catch (err) {

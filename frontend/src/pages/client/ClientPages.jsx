@@ -92,8 +92,8 @@ function RateAgentModal({ appointment, onClose, onSubmitted }) {
       toast.success('Thanks for your review!');
       onSubmitted(appointment._id);
       onClose();
-    } catch {
-      toast.error('Failed to submit review');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit review');
     } finally {
       setSaving(false);
     }
