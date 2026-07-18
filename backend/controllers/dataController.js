@@ -60,6 +60,18 @@ exports.approveReview = async (req, res) => {
   }
 };
 
+exports.getAllReviewsAdmin = async (req, res) => {
+  try {
+    const reviews = await Review.find()
+      .populate('client', 'firstName lastName avatar')
+      .populate('agent', 'firstName lastName avatar')
+      .sort('-createdAt');
+    res.json({ success: true, reviews });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // BLOGS
 exports.getBlogs = async (req, res) => {
   try {
