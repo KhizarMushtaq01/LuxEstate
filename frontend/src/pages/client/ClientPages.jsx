@@ -1,11 +1,10 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Heart, Calendar, User, LogOut, Menu } from 'lucide-react';
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Heart, Calendar, LayoutDashboard, Star } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import useAuthStore from '../../store/authStore';
-import { propertyAPI, appointmentAPI, authAPI } from '../../services/api';
-import { useEffect } from 'react';
+import { propertyAPI, appointmentAPI, authAPI, reviewAPI } from '../../services/api';
 import PropertyCard from '../../components/property/PropertyCard';
-import { SectionLoader, DashboardCard } from '../../components/ui/index';
+import { SectionLoader, DashboardCard, Modal } from '../../components/ui/index';
 import { formatDate, getStatusColor } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 
@@ -125,9 +124,60 @@ export function ClientSaved() {
   );
 }
 
+function RateAgentModal({ appointment, onClose, onSubmitted }) {
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await reviewAPI.create({
+        agent: appointment.agent?._id,
+        property: appointment.property?._id,
+        rating,
+        comment,
+        transactionType: 'bought',
+      });
+      toast.success('Thanks for your review!');
+      onSubmitted(appointment._id);
+      onClose();
+    } catch {
+      toast.error('Failed to submit review');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal open onClose={onClose} title="Rate Your Agent">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="label">Rating</label>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map(n => (
+              <button key={n} type="button" onClick={() => setRating(n)} className="p-0.5">
+                <Star size={24} fill={n <= rating ? '#C9A84C' : 'none'} stroke={n <= rating ? '#C9A84C' : '#d1d5db'} strokeWidth={1.5} />
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="label">Comment</label>
+          <textarea required value={comment} onChange={e => setComment(e.target.value)} className="input-field" rows={4} placeholder="How was your experience with this agent?" />
+        </div>
+        <button type="submit" disabled={saving} className="btn-gold w-full disabled:opacity-50">{saving ? 'Submitting...' : 'Submit Review'}</button>
+      </form>
+    </Modal>
+  );
+}
+
 export function ClientAppointments() {
   const [appts, setAppts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [reviewed, setReviewed] = useState([]);
+  const [ratingAppt, setRatingAppt] = useState(null);
   useEffect(()=>{ appointmentAPI.getAll().then(({data})=>{ setAppts(data.appointments||[]); setLoading(false); }).catch(()=>setLoading(false)); },[]);
   const cancel = async (id) => {
     if (!confirm('Cancel this showing?')) return;
@@ -156,9 +206,17 @@ export function ClientAppointments() {
             {['pending','confirmed'].includes(a.status) && (
               <button onClick={()=>cancel(a._id)} className="border border-red-300 text-red-500 text-xs px-3 py-1.5 hover:bg-red-50">Cancel</button>
             )}
+            {a.status==='completed' && (
+              reviewed.includes(a._id)
+                ? <span className="text-xs text-gray-400 flex items-center gap-1"><Star size={13} fill="#C9A84C" stroke="#C9A84C" />Reviewed</span>
+                : <button onClick={()=>setRatingAppt(a)} className="btn-outline text-xs px-3 py-1.5 flex items-center gap-1"><Star size={13} />Rate Agent</button>
+            )}
           </div>
         </div>
       ))}
+      {ratingAppt && (
+        <RateAgentModal appointment={ratingAppt} onClose={()=>setRatingAppt(null)} onSubmitted={(id)=>setReviewed(r=>[...r,id])} />
+      )}
     </div>
   );
 }
