@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { adminAPI, propertyAPI, appointmentAPI, leadAPI, blogAPI, neighborhoodAPI } from '../../services/api';
-import { SectionLoader, Modal } from '../../components/ui/index';
+import { adminAPI, propertyAPI, appointmentAPI, leadAPI, blogAPI, neighborhoodAPI, reviewAPI } from '../../services/api';
+import { SectionLoader, Modal, StarRating } from '../../components/ui/index';
 import { formatDate, formatPrice, getStatusColor } from '../../utils/helpers';
 import { Trash2, Edit, Plus, Search, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -222,6 +222,56 @@ export function AdminLeads() {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+// ── REVIEWS ───────────────────────────────────────────────────────────
+export function AdminReviews() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    reviewAPI.getAllAdmin().then(({ data }) => { setReviews(data.reviews || []); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+  const handleApprove = async (id) => {
+    try {
+      await reviewAPI.approve(id);
+      setReviews(r => r.map(x => x._id === id ? { ...x, isApproved: true } : x));
+      toast.success('Review approved');
+    } catch { toast.error('Failed'); }
+  };
+  if (loading) return <SectionLoader />;
+  return (
+    <div className="space-y-4">
+      <h2 className="font-display text-2xl text-navy-500">Reviews ({reviews.length})</h2>
+      {reviews.length === 0 ? (
+        <div className="bg-white border border-gray-100 text-center py-16">
+          <p className="text-gray-400">No reviews yet</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {reviews.map(r => (
+            <div key={r._id} className="bg-white border border-gray-100 p-5 flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-navy-500">{r.clientName || `${r.client?.firstName || ''} ${r.client?.lastName || ''}`}</h3>
+                  <StarRating rating={r.rating} size={14} />
+                </div>
+                <p className="text-gray-400 text-sm mt-0.5">For {r.agent?.firstName} {r.agent?.lastName} · {formatDate(r.createdAt)}</p>
+                {r.comment && <p className="text-gray-600 text-sm mt-2 max-w-lg">{r.comment}</p>}
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-xs px-2 py-0.5 ${r.isApproved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                  {r.isApproved ? 'Approved' : 'Pending'}
+                </span>
+                {!r.isApproved && (
+                  <button onClick={() => handleApprove(r._id)} className="btn-gold text-xs px-3 py-1.5 flex items-center gap-1"><Check size={13} />Approve</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
