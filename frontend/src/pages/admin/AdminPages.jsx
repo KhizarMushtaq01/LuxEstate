@@ -78,7 +78,7 @@ function EditUserForm({ user, onSave }) {
   const [form, setForm] = useState({ firstName:user.firstName, lastName:user.lastName, role:user.role, phone:user.phone||'', isActive:user.isActive });
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div><label className="label">First Name</label><input value={form.firstName} onChange={e=>setForm({...form,firstName:e.target.value})} className="input-field" /></div>
         <div><label className="label">Last Name</label><input value={form.lastName} onChange={e=>setForm({...form,lastName:e.target.value})} className="input-field" /></div>
       </div>
@@ -321,7 +321,7 @@ export function AdminBlogs() {
           <div><label className="label">Slug</label><input required value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} className="input-field" /></div>
           <div><label className="label">Excerpt</label><textarea value={form.excerpt} onChange={e=>setForm({...form,excerpt:e.target.value})} className="input-field" rows={2} /></div>
           <div><label className="label">Content</label><textarea required value={form.content} onChange={e=>setForm({...form,content:e.target.value})} className="input-field" rows={8} /></div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">Category</label>
               <select value={form.category} onChange={e=>setForm({...form,category:e.target.value})} className="input-field">
                 {['market-update','buyer-tips','seller-tips','neighborhood','investment','news'].map(c=><option key={c} value={c}>{c}</option>)}
@@ -379,11 +379,11 @@ export function AdminNeighborhoods() {
       </div>
       <Modal open={showForm} onClose={()=>setShowForm(false)} title="Add Neighborhood">
         <form onSubmit={handleCreate} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">Name</label><input required value={form.name} onChange={e=>setForm({...form,name:e.target.value,slug:e.target.value.toLowerCase().replace(/\s+/g,'-')})} className="input-field" /></div>
             <div><label className="label">Slug</label><input required value={form.slug} onChange={e=>setForm({...form,slug:e.target.value})} className="input-field" /></div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">City</label><input value={form.city} onChange={e=>setForm({...form,city:e.target.value})} className="input-field" /></div>
             <div><label className="label">State</label><input value={form.state} onChange={e=>setForm({...form,state:e.target.value})} className="input-field" /></div>
           </div>

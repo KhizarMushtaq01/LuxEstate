@@ -185,11 +185,11 @@ export function AgentPropertyForm() {
           <h3 className="font-display text-lg text-navy-500">Basic Information</h3>
           <div><label className="label">Title *</label><input required value={form.title} onChange={e=>set('title',e.target.value)} className="input-field" placeholder="Beautiful 4BR Home in Oro Valley" /></div>
           <div><label className="label">Description *</label><textarea required value={form.description} onChange={e=>set('description',e.target.value)} className="input-field" rows={5} placeholder="Describe the property..." /></div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">Price *</label><input required type="number" value={form.price} onChange={e=>set('price',e.target.value)} className="input-field" placeholder="450000" /></div>
             <div><label className="label">MLS ID</label><input value={form.mlsId} onChange={e=>set('mlsId',e.target.value)} className="input-field" placeholder="Auto-generated if blank" /></div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div><label className="label">Property Type *</label>
               <select required value={form.propertyType} onChange={e=>set('propertyType',e.target.value)} className="input-field">
                 {PROPERTY_TYPES.map(t=><option key={t} value={t}>{getPropertyTypeLabel(t)}</option>)}
@@ -211,7 +211,7 @@ export function AgentPropertyForm() {
         <div className="bg-white border border-gray-100 p-6 space-y-4">
           <h3 className="font-display text-lg text-navy-500">Address</h3>
           <div><label className="label">Street *</label><input required value={form['address.street']} onChange={e=>set('address.street',e.target.value)} className="input-field" /></div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div><label className="label">City *</label><input required value={form['address.city']} onChange={e=>set('address.city',e.target.value)} className="input-field" /></div>
             <div><label className="label">State</label><input value={form['address.state']} onChange={e=>set('address.state',e.target.value)} className="input-field" /></div>
             <div><label className="label">Zip *</label><input required value={form['address.zip']} onChange={e=>set('address.zip',e.target.value)} className="input-field" /></div>
@@ -220,17 +220,17 @@ export function AgentPropertyForm() {
 
         <div className="bg-white border border-gray-100 p-6 space-y-4">
           <h3 className="font-display text-lg text-navy-500">Property Details</h3>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div><label className="label">Bedrooms *</label><input required type="number" value={form.bedrooms} onChange={e=>set('bedrooms',e.target.value)} className="input-field" min="0" /></div>
             <div><label className="label">Bathrooms *</label><input required type="number" step="0.5" value={form.bathrooms} onChange={e=>set('bathrooms',e.target.value)} className="input-field" min="0" /></div>
             <div><label className="label">Sq Footage *</label><input required type="number" value={form.squareFootage} onChange={e=>set('squareFootage',e.target.value)} className="input-field" /></div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div><label className="label">Year Built</label><input type="number" value={form.yearBuilt} onChange={e=>set('yearBuilt',e.target.value)} className="input-field" placeholder="2005" /></div>
             <div><label className="label">Garage Spaces</label><input type="number" value={form.garage} onChange={e=>set('garage',e.target.value)} className="input-field" min="0" /></div>
             <div><label className="label">Lot Size (sqft)</label><input type="number" value={form.lotSize} onChange={e=>set('lotSize',e.target.value)} className="input-field" /></div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">HOA Fee ($/mo)</label><input type="number" value={form.hoaFee} onChange={e=>set('hoaFee',e.target.value)} className="input-field" /></div>
             <div><label className="label">Annual Tax ($)</label><input type="number" value={form.taxAmount} onChange={e=>set('taxAmount',e.target.value)} className="input-field" /></div>
           </div>
@@ -363,13 +363,13 @@ export function AgentProfile() {
         <div className="bg-white border border-gray-100 p-6 space-y-4">
           <div><label className="label">Avatar URL</label><input value={form.avatar} onChange={e=>set('avatar',e.target.value)} className="input-field" placeholder="https://example.com/photo.jpg" /></div>
           {form.avatar && <img src={form.avatar} className="w-20 h-20 rounded-full object-cover border-2 border-gold-200" alt="" />}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">First Name</label><input value={form.firstName} onChange={e=>set('firstName',e.target.value)} className="input-field" /></div>
             <div><label className="label">Last Name</label><input value={form.lastName} onChange={e=>set('lastName',e.target.value)} className="input-field" /></div>
           </div>
           <div><label className="label">Phone</label><input value={form.phone} onChange={e=>set('phone',e.target.value)} className="input-field" /></div>
           <div><label className="label">Bio</label><textarea value={form.bio} onChange={e=>set('bio',e.target.value)} className="input-field" rows={4} placeholder="Tell clients about yourself..." /></div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label className="label">Years Experience</label><input type="number" value={form.yearsExperience} onChange={e=>set('yearsExperience',e.target.value)} className="input-field" /></div>
             <div><label className="label">License Number</label><input value={form.licenseNumber} onChange={e=>set('licenseNumber',e.target.value)} className="input-field" /></div>
           </div>

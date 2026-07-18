@@ -240,7 +240,7 @@ export function ClientProfile() {
       <form onSubmit={handleSubmit} className="bg-white border border-gray-100 p-6 space-y-4">
         <div><label className="label">Avatar URL</label><input value={form.avatar} onChange={e=>setForm({...form,avatar:e.target.value})} className="input-field" placeholder="https://..." /></div>
         {form.avatar && <img src={form.avatar} className="w-20 h-20 rounded-full object-cover" alt="" />}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div><label className="label">First Name</label><input value={form.firstName} onChange={e=>setForm({...form,firstName:e.target.value})} className="input-field" /></div>
           <div><label className="label">Last Name</label><input value={form.lastName} onChange={e=>setForm({...form,lastName:e.target.value})} className="input-field" /></div>
         </div>
