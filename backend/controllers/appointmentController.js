@@ -57,7 +57,7 @@ exports.updateAppointment = async (req, res) => {
       req.user.role === 'admin';
     if (!isOwner) return res.status(403).json({ success: false, message: 'Not authorized' });
     const oldStatus = appointment.status;
-    const updated = await Appointment.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    const updated = await Appointment.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
       .populate('property', 'title address')
       .populate('agent', 'firstName lastName email')
       .populate('client', 'firstName lastName email');

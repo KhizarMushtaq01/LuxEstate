@@ -45,7 +45,7 @@ exports.appointmentConfirmation = (appointment, recipientRole) => {
   return {
     subject: `Showing Confirmed: ${appointment.property?.title || 'Property Showing'}`,
     html: wrapTemplate('Showing Scheduled', `
-      <p>A ${appointment.type} showing has been scheduled for <strong>${esc(appointment.property?.title) || 'the property'}</strong>.</p>
+      <p>A ${esc(appointment.type)} showing has been scheduled for <strong>${esc(appointment.property?.title) || 'the property'}</strong>.</p>
       <p><strong>Date:</strong> ${dateStr}<br/><strong>Time:</strong> ${esc(appointment.timeSlot)}<br/>
       <strong>${recipientRole === 'client' ? 'Agent' : 'Client'}:</strong> ${esc(other?.firstName)} ${esc(other?.lastName)}</p>
       ${button(`${process.env.CLIENT_URL}/${recipientRole}/appointments`, 'View Appointment')}
@@ -59,7 +59,7 @@ exports.appointmentStatusUpdate = (appointment, recipientRole) => {
   return {
     subject: `Showing ${statusLabel}: ${appointment.property?.title || 'Property Showing'}`,
     html: wrapTemplate(`Showing ${statusLabel}`, `
-      <p>Your showing for <strong>${esc(appointment.property?.title) || 'the property'}</strong> on ${dateStr} at ${esc(appointment.timeSlot)} is now <strong>${appointment.status}</strong>.</p>
+      <p>Your showing for <strong>${esc(appointment.property?.title) || 'the property'}</strong> on ${dateStr} at ${esc(appointment.timeSlot)} is now <strong>${esc(appointment.status)}</strong>.</p>
       ${appointment.cancelReason ? `<p><strong>Reason:</strong> ${esc(appointment.cancelReason)}</p>` : ''}
       ${button(`${process.env.CLIENT_URL}/${recipientRole}/appointments`, 'View Appointment')}
     `),
