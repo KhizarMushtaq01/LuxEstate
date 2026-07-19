@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const emailService = require('../services/emailService');
 
 const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 
@@ -17,6 +18,7 @@ exports.register = async (req, res) => {
     if (exists) return res.status(400).json({ success: false, message: 'Email already registered' });
     const allowedRole = ['client', 'agent'].includes(role) ? role : 'client';
     const user = await User.create({ firstName, lastName, email, password, phone, role: allowedRole });
+    emailService.sendWelcomeEmail(user);
     sendToken(user, 201, res);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
