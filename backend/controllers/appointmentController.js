@@ -1,5 +1,6 @@
 const Appointment = require('../models/Appointment');
 const Property = require('../models/Property');
+const emailService = require('../services/emailService');
 
 exports.createAppointment = async (req, res) => {
   try {
@@ -21,6 +22,7 @@ exports.createAppointment = async (req, res) => {
       { path: 'agent', select: 'firstName lastName email phone' },
       { path: 'client', select: 'firstName lastName email phone' }
     ]);
+    emailService.sendAppointmentConfirmation(populated);
     res.status(201).json({ success: true, appointment: populated });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
