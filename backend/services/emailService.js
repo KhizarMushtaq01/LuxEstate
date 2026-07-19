@@ -2,12 +2,17 @@ const { Resend } = require('resend');
 const User = require('../models/User');
 const templates = require('./emailTemplates');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.RESEND_FROM_EMAIL;
+let resend;
+
+function getResendClient() {
+  if (!resend) resend = new Resend(process.env.RESEND_API_KEY);
+  return resend;
+}
 
 async function sendEmail({ to, subject, html }) {
   try {
-    await resend.emails.send({ from: FROM, to, subject, html });
+    await getResendClient().emails.send({ from: FROM, to, subject, html });
   } catch (err) {
     console.error('[emailService] send failed:', err.message);
   }
