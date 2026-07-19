@@ -1,10 +1,12 @@
 const { Lead, Review, Blog, Neighborhood } = require('../models/Other');
 const User = require('../models/User');
+const emailService = require('../services/emailService');
 
 // LEADS
 exports.createLead = async (req, res) => {
   try {
     const lead = await Lead.create(req.body);
+    emailService.sendNewLeadNotification(lead);
     res.status(201).json({ success: true, lead });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
