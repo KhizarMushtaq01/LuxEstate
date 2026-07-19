@@ -50,6 +50,21 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
+  resetPassword: async (token, password) => {
+    set({ loading: true, error: null });
+    try {
+      const { data } = await authAPI.resetPassword(token, password);
+      localStorage.setItem('luxestate_token', data.token);
+      localStorage.setItem('luxestate_user', JSON.stringify(data.user));
+      set({ user: data.user, token: data.token, loading: false });
+      return data;
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Reset failed';
+      set({ error: msg, loading: false });
+      throw new Error(msg);
+    }
+  },
+
   logout: () => {
     localStorage.removeItem('luxestate_token');
     localStorage.removeItem('luxestate_user');
