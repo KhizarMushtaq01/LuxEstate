@@ -56,10 +56,14 @@ exports.updateAppointment = async (req, res) => {
       appointment.agent.toString() === req.user.id ||
       req.user.role === 'admin';
     if (!isOwner) return res.status(403).json({ success: false, message: 'Not authorized' });
+    const oldStatus = appointment.status;
     const updated = await Appointment.findByIdAndUpdate(req.params.id, req.body, { new: true })
       .populate('property', 'title address')
-      .populate('agent', 'firstName lastName')
-      .populate('client', 'firstName lastName');
+      .populate('agent', 'firstName lastName email')
+      .populate('client', 'firstName lastName email');
+    if (req.body.status && req.body.status !== oldStatus) {
+      emailService.sendAppointmentStatusUpdate(updated);
+    }
     res.json({ success: true, appointment: updated });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
