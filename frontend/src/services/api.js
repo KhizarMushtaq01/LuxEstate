@@ -30,6 +30,8 @@ export const authAPI = {
   updateProfile: (data) => api.put('/auth/profile', data),
   updatePassword: (data) => api.put('/auth/password', data),
   toggleSave: (propertyId) => api.put(`/auth/save/${propertyId}`),
+  forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+  resetPassword: (token, password) => api.post(`/auth/reset-password/${token}`, { password }),
 };
 
 // PROPERTIES

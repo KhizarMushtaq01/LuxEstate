@@ -7,6 +7,7 @@ import PropertiesPage from './pages/PropertiesPage';
 import PropertyDetailPage from './pages/PropertyDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AboutPage from './pages/AboutPage';
 import AgentsPage from './pages/AgentsPage';
 import AgentDetailPage from './pages/AgentDetailPage';
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/agent-login" element={<LoginPage agentLogin />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/agents" element={<AgentsPage />} />
           <Route path="/agents/:id" element={<AgentDetailPage />} />

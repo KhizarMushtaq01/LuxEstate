@@ -37,6 +37,19 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
+  forgotPassword: async (email) => {
+    set({ loading: true, error: null });
+    try {
+      const { data } = await authAPI.forgotPassword(email);
+      set({ loading: false });
+      return data;
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Request failed';
+      set({ error: msg, loading: false });
+      throw new Error(msg);
+    }
+  },
+
   logout: () => {
     localStorage.removeItem('luxestate_token');
     localStorage.removeItem('luxestate_user');
