@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const emailService = require('../services/emailService');
 
 const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 
@@ -70,6 +71,7 @@ exports.updatePassword = async (req, res) => {
     }
     user.password = newPassword;
     await user.save();
+    emailService.sendPasswordChangedNotification(user);
     sendToken(user, 200, res);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
