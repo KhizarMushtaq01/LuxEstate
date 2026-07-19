@@ -13,6 +13,8 @@ router.get('/auth/me', protect, auth.getMe);
 router.put('/auth/profile', protect, auth.updateProfile);
 router.put('/auth/password', protect, auth.updatePassword);
 router.put('/auth/save/:propertyId', protect, auth.toggleSaveProperty);
+router.post('/auth/forgot-password', auth.forgotPassword);
+router.post('/auth/reset-password/:token', auth.resetPassword);
 
 // PROPERTIES
 router.get('/properties', property.getProperties);

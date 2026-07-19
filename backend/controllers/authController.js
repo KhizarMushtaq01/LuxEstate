@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../models/User');
 const emailService = require('../services/emailService');
 
@@ -88,6 +89,42 @@ exports.toggleSaveProperty = async (req, res) => {
     else user.savedProperties.push(propId);
     await user.save();
     res.json({ success: true, savedProperties: user.savedProperties });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      const rawToken = crypto.randomBytes(32).toString('hex');
+      user.resetPasswordToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+      user.resetPasswordExpire = Date.now() + 30 * 60 * 1000;
+      await user.save();
+      emailService.sendPasswordResetEmail(user, rawToken);
+    }
+    res.json({ success: true, message: 'If that email exists, a reset link has been sent.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() }
+    });
+    if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired reset link' });
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+    emailService.sendPasswordChangedNotification(user);
+    sendToken(user, 200, res);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
