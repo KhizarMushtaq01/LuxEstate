@@ -72,6 +72,7 @@ exports.updatePassword = async (req, res) => {
     }
     user.password = newPassword;
     await user.save();
+    emailService.sendPasswordChangedNotification(user);
     sendToken(user, 200, res);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
