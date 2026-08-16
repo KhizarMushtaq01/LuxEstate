@@ -1030,10 +1030,13 @@ out/
 # ============================================
 # LuxEstate overrides (must stay last)
 # ============================================
-# This file concatenates many language templates. Two of their rules exclude
+# This file concatenates many language templates. Their rules exclude several
 # files this Vite app needs in the repo:
-#   line 677 `*.html`          - from the R/LaTeX template; hid index.html,
-#                                Vite's entry point, breaking deploy builds
-#   line 145 `package-lock.json` - hid the lockfile needed for reproducible installs
+#   line 677  `*.html`            - from the R/LaTeX template; hid index.html,
+#                                   Vite's entry point, breaking deploy builds
+#   line 145  `package-lock.json` - hid the lockfile needed for reproducible installs
+#   line 1021 `vercel.json`       - hid the SPA rewrite config, so every route
+#                                   except / returned 404 on direct load
 !index.html
 !package-lock.json
+!vercel.json
