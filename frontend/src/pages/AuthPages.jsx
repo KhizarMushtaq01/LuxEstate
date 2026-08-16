@@ -84,15 +84,6 @@ export function LoginPage({ agentLogin }) {
               {loading ? 'Signing in...' : <>Sign In <ArrowRight size={16}/></>}
             </button>
           </form>
-
-          <div className="mt-6 p-4 bg-gold-50 border border-gold-200">
-            <p className="text-xs text-gray-500 mb-2 font-medium">Demo Accounts:</p>
-            <div className="space-y-1 text-xs text-gray-400">
-              <p>Admin: admin@luxestate.com / admin123</p>
-              <p>Agent: agent@luxestate.com / agent123</p>
-              <p>Client: client@luxestate.com / client123</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

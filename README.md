@@ -108,11 +108,8 @@ npm run dev
 
 ## Demo Accounts
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@luxestate.com | admin123 |
-| Agent | agent@luxestate.com | agent123 |
-| Client | client@luxestate.com | client123 |
+Seeded demo users are created by `backend/seed.js` (run `npm run seed`).
+See that file for the accounts and their credentials.
 
 ---
 
