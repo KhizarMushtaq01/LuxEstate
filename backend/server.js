@@ -12,6 +12,9 @@ connectDB();
 
 const app = express();
 
+// Behind Render's proxy - required for correct client IPs in rate limiting
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({ crossOriginEmbedderPolicy: false }));
 
