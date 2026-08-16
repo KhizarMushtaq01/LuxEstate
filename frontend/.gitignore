@@ -1027,3 +1027,13 @@ vercel.json
 out/
 **/.next
 **/out
+# ============================================
+# LuxEstate overrides (must stay last)
+# ============================================
+# This file concatenates many language templates. Two of their rules exclude
+# files this Vite app needs in the repo:
+#   line 677 `*.html`          - from the R/LaTeX template; hid index.html,
+#                                Vite's entry point, breaking deploy builds
+#   line 145 `package-lock.json` - hid the lockfile needed for reproducible installs
+!index.html
+!package-lock.json
