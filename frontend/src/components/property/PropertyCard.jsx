@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { Bed, Bath, Square, Heart, MapPin, Eye, Calendar } from 'lucide-react';
 import { formatPrice, formatNumber, getDefaultPhoto, getPropertyTypeLabel } from '../../utils/helpers';
 import useAuthStore from '../../store/authStore';
-import { authAPI } from '../../services/api';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -15,21 +14,21 @@ const statusColors = {
 };
 
 export default function PropertyCard({ property, className = '' }) {
-  const { user } = useAuthStore();
-  const [saved, setSaved] = useState(user?.savedProperties?.includes(property._id));
+  const { user, toggleSaved } = useAuthStore();
   const [savingLoading, setSavingLoading] = useState(false);
+  const saved = !!user?.savedProperties?.includes(property._id);
 
   const photo = property.photos?.[0]?.url || getDefaultPhoto(Math.floor(Math.random() * 8));
   const primaryPhoto = property.photos?.find(p => p.isPrimary)?.url || photo;
 
   const handleSave = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!user) { toast.error('Please sign in to save properties'); return; }
     setSavingLoading(true);
     try {
-      await authAPI.toggleSave(property._id);
-      setSaved(!saved);
-      toast.success(saved ? 'Removed from saved' : 'Saved to favorites');
+      const isNowSaved = await toggleSaved(property._id);
+      toast.success(isNowSaved ? 'Saved to favorites' : 'Removed from saved');
     } catch { toast.error('Failed to save'); }
     finally { setSavingLoading(false); }
   };

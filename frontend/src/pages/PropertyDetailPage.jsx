@@ -11,9 +11,10 @@ import toast from 'react-hot-toast';
 export default function PropertyDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, toggleSaved } = useAuthStore();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [savingLoading, setSavingLoading] = useState(false);
   const [photoIdx, setPhotoIdx] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -46,6 +47,18 @@ export default function PropertyDetailPage() {
     : Array(4).fill(0).map((_, i) => getDefaultPhoto(i));
 
   const monthly = calcMortgage({ price: property.price, downPayment: mortgage.down, rate: mortgage.rate, years: mortgage.years });
+
+  const isSaved = !!user?.savedProperties?.includes(property._id);
+
+  const handleToggleSave = async () => {
+    if (!user) { toast.error('Please sign in to save properties'); navigate('/login'); return; }
+    setSavingLoading(true);
+    try {
+      const isNowSaved = await toggleSaved(property._id);
+      toast.success(isNowSaved ? 'Saved to favorites' : 'Removed from saved');
+    } catch { toast.error('Failed to save'); }
+    finally { setSavingLoading(false); }
+  };
 
   const handleShowingSubmit = async (e) => {
     e.preventDefault();
@@ -137,8 +150,10 @@ export default function PropertyDetailPage() {
                 <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gold-500 transition-colors border border-gray-200 px-3 py-1.5 hover:border-gold-500">
                   <Printer size={13} /> Print
                 </button>
-                <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors border border-gray-200 px-3 py-1.5 hover:border-red-300">
-                  <Heart size={13} /> Save
+                <button onClick={handleToggleSave} disabled={savingLoading}
+                  className={`flex items-center gap-1.5 text-sm transition-colors border px-3 py-1.5 disabled:opacity-60
+                  ${isSaved ? 'text-red-500 border-red-300' : 'text-gray-500 border-gray-200 hover:text-red-500 hover:border-red-300'}`}>
+                  <Heart size={13} fill={isSaved ? 'currentColor' : 'none'} /> {isSaved ? 'Saved' : 'Save'}
                 </button>
               </div>
             </div>

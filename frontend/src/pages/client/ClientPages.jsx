@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Heart, Calendar, LayoutDashboard, Star } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import useAuthStore from '../../store/authStore';
-import { propertyAPI, appointmentAPI, authAPI, reviewAPI } from '../../services/api';
+import { appointmentAPI, authAPI, reviewAPI } from '../../services/api';
 import PropertyCard from '../../components/property/PropertyCard';
 import { SectionLoader, DashboardCard, Modal } from '../../components/ui/index';
 import { formatDate, getStatusColor } from '../../utils/helpers';
@@ -47,13 +47,18 @@ export function ClientDashboard() {
 
 export function ClientSaved() {
   const { user } = useAuthStore();
+  // refetch whenever the saved list changes so saving/unsaving anywhere reflects here
+  const savedKey = (user?.savedProperties || []).join(',');
   const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(!!user?.savedProperties?.length);
+  const [loading, setLoading] = useState(true);
   useEffect(()=>{
-    if (!user?.savedProperties?.length) return;
-    Promise.all(user.savedProperties.map(id=>propertyAPI.getOne(id).catch(()=>null)))
-      .then(res => { setProperties(res.filter(Boolean).map(r=>r.data.property)); setLoading(false); });
-  },[]);
+    let active = true;
+    authAPI.getSaved()
+      .then(({data})=>{ if (active) setProperties(data.properties||[]); })
+      .catch(()=>{ if (active) { setProperties([]); toast.error('Could not load saved homes'); } })
+      .finally(()=>{ if (active) setLoading(false); });
+    return ()=>{ active = false; };
+  },[savedKey]);
   if (loading) return <SectionLoader />;
   return (
     <div className="space-y-4">

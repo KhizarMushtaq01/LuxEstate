@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import useAuthStore from './store/authStore';
@@ -61,6 +62,10 @@ function ProtectedRoute({ children, roles }) {
 }
 
 export default function App() {
+  const { token, refreshUser } = useAuthStore();
+  // localStorage can hold a stale user (e.g. saved homes changed elsewhere) — resync on load
+  useEffect(() => { if (token) refreshUser(); }, [token, refreshUser]);
+
   return (
     <BrowserRouter>
       <Toaster position="top-right" toastOptions={{ style: { fontFamily: 'DM Sans, sans-serif', fontSize: '14px' }, success: { iconTheme: { primary: '#C9A84C', secondary: '#fff' } } }} />

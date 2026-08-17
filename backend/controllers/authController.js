@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 const User = require('../models/User');
+const Property = require('../models/Property');
 const emailService = require('../services/emailService');
 
 const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
@@ -43,7 +45,7 @@ exports.login = async (req, res) => {
 
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate('savedProperties');
+    const user = await User.findById(req.user.id);
     res.json({ success: true, user });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -82,13 +84,34 @@ exports.updatePassword = async (req, res) => {
 
 exports.toggleSaveProperty = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
     const propId = req.params.propertyId;
-    const idx = user.savedProperties.indexOf(propId);
-    if (idx > -1) user.savedProperties.splice(idx, 1);
-    else user.savedProperties.push(propId);
+    if (!mongoose.Types.ObjectId.isValid(propId)) {
+      return res.status(400).json({ success: false, message: 'Invalid property id' });
+    }
+    const property = await Property.findById(propId).select('_id');
+    if (!property) return res.status(404).json({ success: false, message: 'Property not found' });
+
+    const user = await User.findById(req.user.id);
+    const idx = user.savedProperties.findIndex(id => id.toString() === propId);
+    const saved = idx === -1;
+    if (saved) user.savedProperties.push(propId);
+    else user.savedProperties.splice(idx, 1);
     await user.save();
-    res.json({ success: true, savedProperties: user.savedProperties });
+    res.json({ success: true, saved, savedProperties: user.savedProperties });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.getSavedProperties = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate({
+      path: 'savedProperties',
+      populate: { path: 'agent', select: 'firstName lastName avatar' },
+    });
+    // populate drops ids whose property was deleted, so the list is always live
+    const properties = (user.savedProperties || []).filter(Boolean);
+    res.json({ success: true, count: properties.length, properties });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

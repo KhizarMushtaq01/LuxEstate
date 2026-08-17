@@ -12,6 +12,7 @@ router.post('/auth/login', auth.login);
 router.get('/auth/me', protect, auth.getMe);
 router.put('/auth/profile', protect, auth.updateProfile);
 router.put('/auth/password', protect, auth.updatePassword);
+router.get('/auth/saved', protect, auth.getSavedProperties);
 router.put('/auth/save/:propertyId', protect, auth.toggleSaveProperty);
 router.post('/auth/forgot-password', auth.forgotPassword);
 router.post('/auth/reset-password/:token', auth.resetPassword);
